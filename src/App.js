@@ -27,12 +27,7 @@ function App() {
 
 
   useEffect(() => {
-    const getHighScoreData = async () => {
-      const data = await fetchHighScoreData()
-      setHighScoreData(data)
-    }
-
-    getHighScoreData()
+    updateHighScoreData()
   }, [])
 
   
@@ -63,7 +58,9 @@ function App() {
   }
 
   const connectToServer = async (name, size, level) => {
+
     console.log(`connectToServer called with ${name}`);
+
     setGridSize(size);
     let result;
     try {
@@ -76,7 +73,6 @@ function App() {
       })
 
       result = await res.json()
-
     }
     catch (e) {
       console.error("Exception during fetch", e);
@@ -89,9 +85,7 @@ function App() {
     }
 
     applyGameData(result.data);
-
     setGameId(result.data._id);
-
     setMessage('')
     setIsGameFinished(false)
     setConnected(true)
@@ -103,6 +97,7 @@ function App() {
     console.log(`cell clicked ${x} ${y}`);
 
     if (isGameFinished){
+      // cell clicks ignored when game is finished
       return;
     }
 
@@ -119,10 +114,9 @@ function App() {
       result = await res.json()
     }
     catch (e) {
-      console.error("Exception during fetch", e);
+      console.error("Exception during posting a move", e);
       return;
     }
-
 
     if (!result?.data?.grid) {
       console.error("Failed to parse result")
@@ -130,8 +124,9 @@ function App() {
     }
 
     applyGameData(result.data);
-
     setIsGameFinished(result.data.isFinished)
+
+    // create the finish message
     if (result.data.isFinished) {
       let tempMessage = 'Game Finished!';
       if (result.data.winner === 1) {
@@ -143,6 +138,7 @@ function App() {
       else {
         tempMessage += ` Result is a tie!`
       }
+
       setMessage(tempMessage)
     }
   }
@@ -177,6 +173,8 @@ function App() {
 
     applyGameData(result.data);
   }
+
+  // RENDER
 
   return (
     <Router>
